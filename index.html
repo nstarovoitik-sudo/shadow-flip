@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Flip: Tactical Apocalypse</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        
+        <div id="map-screen" class="screen">
+            <div class="map-header">
+                <h2>TACTICAL COMMAND MAP</h2>
+                <p>The zombie horde is overtaking our kingdoms. Click a location to liberate it!</p>
+            </div>
+            
+            <div class="map-canvas-container">
+                <div class="map-node town" onclick="selectMapNode('Oakhaven', 'easy')">
+                    <span class="node-icon">🏡</span>
+                    <span class="node-name">Town of Oakhaven<br><small class="diff-tag easy">Easy Presence</small></span>
+                </div>
+                
+                <div class="map-node castle" onclick="selectMapNode('Shadowguard', 'medium')">
+                    <span class="node-icon">🏰</span>
+                    <span class="node-name">Castle Shadowguard<br><small class="diff-tag medium">Medium Swarm</small></span>
+                </div>
+                
+                <div class="map-node town" onclick="selectMapNode('Whispering Pines', 'extreme')">
+                    <span class="node-icon">🌲</span>
+                    <span class="node-name">Whispering Pines<br><small class="diff-tag extreme">Extreme Infestation</small></span>
+                </div>
+                
+                <div class="map-node castle" onclick="selectMapNode('Citadel of Doom', 'impossible')">
+                    <span class="node-icon">💀</span>
+                    <span class="node-name">Citadel of Doom<br><small class="diff-tag impossible">Impossible Boss Outpost</small></span>
+                </div>
+            </div>
+
+            <div class="map-footer-navigation">
+                <button onclick="switchScreen('shop-screen')" class="nav-btn yellow-glow">📦 Access Hero Marketplace</button>
+                <button onclick="openAdminModal()" class="nav-btn admin-trigger-btn">⚙️ Admin Frame</button>
+            </div>
+        </div>
+
+        <div id="shop-screen" class="screen hidden">
+            <h2>HERO MARKETPLACE & UPGRADES</h2>
+            <p>The cooler your warrior looks, the more premium their tactical combat value.</p>
+            
+            <div class="shop-grid">
+                <div class="shop-card" id="card-ninja">
+                    <div class="coolness-badge tier-low">Coolness: 10 ★</div>
+                    <h3>Shadow Ninja</h3>
+                    <p class="desc">Standard agile combatant with quick-slice capabilities.</p>
+                    <div class="price-tag">FREE</div>
+                    <button id="buy-btn-ninja" onclick="purchaseHero('ninja')" class="buy-btn unlocked">Selected</button>
+                </div>
+                <div class="shop-card" id="card-volt">
+                    <div class="coolness-badge tier-mid">Coolness: 55 ★★</div>
+                    <h3>Volt Runner</h3>
+                    <p class="desc">Generates hyper-speed velocity runs and electric movement particle trails.</p>
+                    <div class="price-tag">$1.00</div>
+                    <button id="buy-btn-volt" onclick="purchaseHero('volt')" class="buy-btn locked">Unlock Character</button>
+                </div>
+                <div class="shop-card" id="card-goliath">
+                    <div class="coolness-badge tier-high">Coolness: 80 ★★★</div>
+                    <h3>Goliath Heavy</h3>
+                    <p class="desc">Bulky tactical frame starting with 5 maximum default live points.</p>
+                    <div class="price-tag">$1.50</div>
+                    <button id="buy-btn-goliath" onclick="purchaseHero('goliath')" class="buy-btn locked">Unlock Character</button>
+                </div>
+                <div class="shop-card" id="card-emperor">
+                    <div class="coolness-badge tier-luxury">Coolness: 999 💎 LUXURY</div>
+                    <h3>Cyber Emperor</h3>
+                    <p class="desc">Premium Class. Right-Click / Enter fires fully explosive area-of-effect Heavy Rockets!</p>
+                    <div class="price-tag">$5.00</div>
+                    <button id="buy-btn-emperor" onclick="purchaseHero('emperor')" class="buy-btn locked luxury-glow">Purchase Luxury</button>
+                </div>
+            </div>
+
+            <button onclick="switchScreen('map-screen')" class="back-btn">📋 Return to War Map</button>
+        </div>
+
+        <div id="action-screen" class="screen hidden">
+            <div id="ui-layer">
+                <div class="panel">
+                    <h1 id="current-location-title">LIBERATING AREA</h1>
+                    <p>Score: <span id="score-val">0</span> | Lives: <span id="lives-val">3</span></p>
+                    <p id="powerup-status">Archers Alive: <span id="archer-count">4</span></p>
+                    <p style="font-size:11px; margin-top:4px; color:#aaa;">Active: <span id="active-hero-lbl" style="color:#00ff66;">Shadow Ninja</span></p>
+                </div>
+                <button onclick="abortMission()" class="abort-btn">🏳️ Abort to Map</button>
+            </div>
+            
+            <canvas id="gameCanvas"></canvas>
+            
+            <div id="controls-hint">
+                Movement: Up = Jump | Left & Right = Move | Down = Quick Fall <br>
+                <strong>Combat: Left Click = Sword Slash | Enter / Right Click = Special!</strong><br>
+                <span style="color: #ffcc00;" id="hero-ability-desc">Ability: Baseline Balance. Clear all 4 archers for speed.</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="admin-modal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>🔒 ENCRYPTED ADMIN TERMINAL</h3>
+            <p>Input master sequence to access developer bypass controls.</p>
+            <input type="password" id="admin-password-input" placeholder="Enter System Password...">
+            
+            <div id="admin-error-msg" class="error-txt hidden">Access Denied: Invalid Authentication Signature.</div>
+            
+            <div id="admin-controls-panel" class="hidden">
+                <div class="success-banner">✓ LOGGED IN AS GAME CREATOR</div>
+                <div class="admin-buttons-grid">
+                    <button onclick="adminToggleGodMode()">Toggle Max Lives (99)</button>
+                    <button onclick="adminUnlockAllStore()">Free Market Unlock Everything</button>
+                    <button onclick="adminInstantWin()">Force Instant Map Cleanse (Win)</button>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button onclick="submitAdminPassword()" id="admin-auth-btn" class="modal-action-btn ok">Authenticate</button>
+                <button onclick="closeAdminModal()" class="modal-action-btn cancel">Close Frame</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="game-over-screen" class="overlay hidden">
+        <h2 class="danger-text">OVERRUN BY ZOMBIES</h2>
+        <p>The horde claimed this territory.</p>
+        <button onclick="abortMission()" class="replay-btn">Back to Tactical Map</button>
+    </div>
+
+    <div id="victory-screen" class="overlay hidden">
+        <h2 class="success-text">TERRITORY LIBERATED!</h2>
+        <p>You have cleared the area of undead lifeforms.</p>
+        <button onclick="abortMission()" class="replay-btn">Return to Tactical Map</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
